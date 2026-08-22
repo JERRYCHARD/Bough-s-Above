@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "RarityTypes.h"
+#include "../CharacterRoll/UnitTypes.h"
+#include "../CharacterRoll/UnitDatabase.h"
 #include "GachaSubsystem.generated.h"
 
 class UGachaRarityTable;
@@ -15,6 +17,12 @@ class BOUGHSABOVE_API UGachaSubsystem : public UGameInstanceSubsystem
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Gacha")
 	UGachaRarityTable* RarityTable;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Gacha")
+	UUnitDatabase* UnitDatabase;
+
+	UFUNCTION(BlueprintCallable, Category = "Gacha")
+	FUnitData RollUnit(ERarityTier Tier, FName ChosenChampionID);
 
 	UFUNCTION(BlueprintCallable, Category = "Gacha")
 	ERarityTier RollRarity();

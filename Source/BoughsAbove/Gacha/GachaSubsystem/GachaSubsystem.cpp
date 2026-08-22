@@ -119,3 +119,32 @@ float UGachaSubsystem::GetCurrentRate(ERarityTier Tier) const
 
 	return GetEffectiveRate(*Config);
 }
+
+FUnitData UGachaSubsystem::RollUnit(ERarityTier Tier, FName ChosenChampionID)
+{
+	if (!UnitDatabase)
+	{
+		return FUnitData();
+	}
+
+	if (Tier == ERarityTier::Champion)
+	{
+		for (const FUnitData& Unit : UnitDatabase->Units)
+		{
+			if (Unit.Tier == ERarityTier::Champion && Unit.UnitID == ChosenChampionID)
+			{
+				return Unit;
+			}
+		}
+		return FUnitData();
+	}
+
+	TArray<FUnitData> Pool = UnitDatabase->GetUnitsForTier(Tier);
+	if (Pool.Num() == 0)
+	{
+		return FUnitData();
+	}
+
+	const int32 RandomIndex = FMath::RandRange(0, Pool.Num() - 1);
+	return Pool[RandomIndex];
+}
