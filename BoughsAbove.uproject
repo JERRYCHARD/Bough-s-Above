@@ -1,0 +1,22 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{53703052-45C7-02E6-92D5-4A9D5AE6E7C7}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "BoughsAbove",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "ModelingToolsEditorMode",
+			"Enabled": true,
+			"TargetAllowList": [
+				"Editor"
+			]
+		}
+	]
+}
