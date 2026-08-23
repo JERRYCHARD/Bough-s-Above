@@ -1,23 +1,16 @@
 #include "InventorySubsystem.h"
 
-bool UInventorySubsystem::OwnsUnit(FName UnitID) const
-{
-	for (const FOwnedUnit& Owned : OwnedUnits)
-	{
-		if (Owned.UnitID == UnitID)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-FOwnedUnit* UInventorySubsystem::FindOwnedUnit(FName UnitID)
+const FOwnedUnit* UInventorySubsystem::FindOwnedUnit(FName UnitID) const
 {
 	return OwnedUnits.FindByPredicate([UnitID](const FOwnedUnit& Owned)
 		{
 			return Owned.UnitID == UnitID;
 		});
+}
+
+bool UInventorySubsystem::OwnsUnit(FName UnitID) const
+{
+	return FindOwnedUnit(UnitID) != nullptr;
 }
 
 void UInventorySubsystem::AddUnit(const FUnitData& Unit)
@@ -54,3 +47,20 @@ void UInventorySubsystem::AddUnit(const FUnitData& Unit)
 		Gold += Config->CappedShardGoldReward;
 	}
 }
+
+bool UInventorySubsystem::TrySpendGems(int32 Amount)
+{
+	if (Gems < Amount)
+	{
+		return false;
+	}
+
+	Gems -= Amount;
+	return true;
+}
+
+void UInventorySubsystem::AddGems(int32 Amount)
+{
+	Gems += Amount;
+}
+

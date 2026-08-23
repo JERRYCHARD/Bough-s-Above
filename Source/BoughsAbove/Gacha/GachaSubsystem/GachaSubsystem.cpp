@@ -22,6 +22,32 @@ int32 UGachaSubsystem::GetPityCount(ERarityTier Tier) const
 	return Counter ? *Counter : 0;
 }
 
+float UGachaSubsystem::GetCurrentRate(ERarityTier Tier) const
+{
+	if (!RarityTable)
+	{
+		return 0.f;
+	}
+
+	const FRarityConfig* Config = RarityTable->FindConfig(Tier);
+	if (!Config)
+	{
+		return 0.f;
+	}
+
+	return GetEffectiveRate(*Config);
+}
+
+TMap<ERarityTier, int32> UGachaSubsystem::GetAllPityCounters() const
+{
+	return PityCounters;
+}
+
+void UGachaSubsystem::RestorePityCounters(const TMap<ERarityTier, int32>& SavedCounters)
+{
+	PityCounters = SavedCounters;
+}
+
 ERarityTier UGachaSubsystem::RollRarity()
 {
 	if (!RarityTable)
@@ -104,22 +130,6 @@ TArray<ERarityTier> UGachaSubsystem::RollRarityBatch(int32 Count)
 	return Results;
 }
 
-float UGachaSubsystem::GetCurrentRate(ERarityTier Tier) const
-{
-	if (!RarityTable)
-	{
-		return 0.f;
-	}
-
-	const FRarityConfig* Config = RarityTable->FindConfig(Tier);
-	if (!Config)
-	{
-		return 0.f;
-	}
-
-	return GetEffectiveRate(*Config);
-}
-
 FUnitData UGachaSubsystem::RollUnit(ERarityTier Tier, FName ChosenChampionID)
 {
 	if (!UnitDatabase)
@@ -127,11 +137,13 @@ FUnitData UGachaSubsystem::RollUnit(ERarityTier Tier, FName ChosenChampionID)
 		return FUnitData();
 	}
 
+	TArray<FUnitData> Pool = UnitDatabase->GetUnitsForTier(Tier);
+
 	if (Tier == ERarityTier::Champion)
 	{
-		for (const FUnitData& Unit : UnitDatabase->Units)
+		for (const FUnitData& Unit : Pool)
 		{
-			if (Unit.Tier == ERarityTier::Champion && Unit.UnitID == ChosenChampionID)
+			if (Unit.UnitID == ChosenChampionID)
 			{
 				return Unit;
 			}
@@ -139,7 +151,6 @@ FUnitData UGachaSubsystem::RollUnit(ERarityTier Tier, FName ChosenChampionID)
 		return FUnitData();
 	}
 
-	TArray<FUnitData> Pool = UnitDatabase->GetUnitsForTier(Tier);
 	if (Pool.Num() == 0)
 	{
 		return FUnitData();

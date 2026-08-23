@@ -36,6 +36,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Gacha")
 	float GetCurrentRate(ERarityTier Tier) const;
 
+	UFUNCTION(BlueprintCallable, Category = "Gacha")
+	TMap<ERarityTier, int32> GetAllPityCounters() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Gacha")
+	void RestorePityCounters(const TMap<ERarityTier, int32>& SavedCounters);
+
 private:
 	TMap<ERarityTier, int32> PityCounters;
 

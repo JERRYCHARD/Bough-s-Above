@@ -26,12 +26,21 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
 	int32 Gold = 0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
+	int32 Gems = 0;
+
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void AddUnit(const FUnitData& Unit);
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	bool OwnsUnit(FName UnitID) const;
 
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	bool TrySpendGems(int32 Amount);
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	void AddGems(int32 Amount);
+
 private:
-	FOwnedUnit* FindOwnedUnit(FName UnitID);
+	const FOwnedUnit* FindOwnedUnit(FName UnitID) const;
 };
