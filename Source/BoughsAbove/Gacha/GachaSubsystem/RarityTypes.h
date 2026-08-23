@@ -33,4 +33,16 @@ struct FRarityConfig
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rarity")
 	int32 HardPity = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rarity")
+	int32 ShardsToTierUp = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rarity")
+	int32 ShardCap = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rarity")
+	int32 DuplicateGoldReward = 10;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rarity")
+	int32 CappedShardGoldReward = 15;
 };
