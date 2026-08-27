@@ -12,5 +12,5 @@ struct FOwnedUnit
 	FName UnitID;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Unit")
-	int32 Level = 1;
+	int32 StarLevel = 0;
 };
