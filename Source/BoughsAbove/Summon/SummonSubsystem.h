@@ -25,6 +25,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Summon")
 	TArray<FSummonResult> SummonUpToFifty();
 
+	UFUNCTION(BlueprintCallable, Category = "Summon")
+	int32 GetAffordableSummonCount() const;
+
 private:
 	FSummonResult RollAndStore();
 };

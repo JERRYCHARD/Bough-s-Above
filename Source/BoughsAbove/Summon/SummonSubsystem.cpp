@@ -75,3 +75,17 @@ TArray<FSummonResult> USummonSubsystem::SummonUpToFifty()
 
 	return Results;
 }
+
+int32 USummonSubsystem::GetAffordableSummonCount() const
+{
+	UGameInstance* GI = GetGameInstance();
+	UInventorySubsystem* Inventory = GI ? GI->GetSubsystem<UInventorySubsystem>() : nullptr;
+
+	if (!Inventory || CostPerSummon <= 0)
+	{
+		return 0;
+	}
+
+	const int32 Affordable = Inventory->Gems / CostPerSummon;
+	return FMath::Min(Affordable, 50);
+}
