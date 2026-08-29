@@ -14,10 +14,24 @@ FSummonResult USummonSubsystem::RollAndStore()
 	}
 
 	Result.Tier = Gacha->RollRarity();
-	Result.Unit = Gacha->RollUnit(Result.Tier, NAME_None);
+	Result.Unit = Gacha->RollUnit(Result.Tier, FName(TEXT("champion_1")));
 	Inventory->AddUnit(Result.Unit);
 
 	return Result;
+}
+
+int32 USummonSubsystem::GetAffordableSummonCount() const
+{
+	UGameInstance* GI = GetGameInstance();
+	UInventorySubsystem* Inventory = GI ? GI->GetSubsystem<UInventorySubsystem>() : nullptr;
+
+	if (!Inventory || CostPerSummon <= 0)
+	{
+		return 0;
+	}
+
+	const int32 Affordable = Inventory->Gems / CostPerSummon;
+	return FMath::Min(Affordable, 50);
 }
 
 TArray<FSummonResult> USummonSubsystem::SummonOnce()
@@ -53,6 +67,11 @@ TArray<FSummonResult> USummonSubsystem::SummonTen()
 		Results.Add(RollAndStore());
 	}
 
+	Results.Sort([](const FSummonResult& A, const FSummonResult& B)
+		{
+			return static_cast<uint8>(A.Tier) > static_cast<uint8>(B.Tier);
+		});
+
 	return Results;
 }
 
@@ -73,19 +92,10 @@ TArray<FSummonResult> USummonSubsystem::SummonUpToFifty()
 		Results.Add(RollAndStore());
 	}
 
+	Results.Sort([](const FSummonResult& A, const FSummonResult& B)
+		{
+			return static_cast<uint8>(A.Tier) > static_cast<uint8>(B.Tier);
+		});
+
 	return Results;
-}
-
-int32 USummonSubsystem::GetAffordableSummonCount() const
-{
-	UGameInstance* GI = GetGameInstance();
-	UInventorySubsystem* Inventory = GI ? GI->GetSubsystem<UInventorySubsystem>() : nullptr;
-
-	if (!Inventory || CostPerSummon <= 0)
-	{
-		return 0;
-	}
-
-	const int32 Affordable = Inventory->Gems / CostPerSummon;
-	return FMath::Min(Affordable, 50);
 }
