@@ -122,3 +122,33 @@ bool UInventorySubsystem::TryStarUpUnit(FName UnitID)
 	Owned->StarLevel += 1;
 	return true;
 }
+
+TArray<FInventoryDisplayEntry> UInventorySubsystem::GetOwnedUnitsByTier(ERarityTier Tier) const
+{
+	TArray<FInventoryDisplayEntry> Result;
+
+	if (!UnitDatabase)
+	{
+		return Result;
+	}
+
+	for (const FOwnedUnit& Owned : OwnedUnits)
+	{
+		const FUnitData* UnitDef = UnitDatabase->Units.FindByPredicate([&Owned](const FUnitData& Unit)
+			{
+				return Unit.UnitID == Owned.UnitID;
+			});
+
+		if (UnitDef && UnitDef->Tier == Tier)
+		{
+			FInventoryDisplayEntry Entry;
+			Entry.UnitID = Owned.UnitID;
+			Entry.DisplayName = UnitDef->DisplayName;
+			Entry.StarLevel = Owned.StarLevel;
+			Entry.Tier = Tier;
+			Result.Add(Entry);
+		}
+	}
+
+	return Result;
+}

@@ -9,6 +9,7 @@
 #include "../Gacha/CharacterRoll/UnitDatabase.h"
 #include "../Characters/UnitStats.h"
 #include "../Characters/StatGrowthConfig.h"
+#include "InventoryDisplayEntry.h"
 #include "InventorySubsystem.generated.h"
 
 UCLASS()
@@ -55,6 +56,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	bool TryStarUpUnit(FName UnitID);
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	TArray<FInventoryDisplayEntry> GetOwnedUnitsByTier(ERarityTier Tier) const;
 
 private:
 	const FOwnedUnit* FindOwnedUnit(FName UnitID) const;
