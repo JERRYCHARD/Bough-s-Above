@@ -1,4 +1,5 @@
 #include "SummonSubsystem.h"
+#include "../Inventory/CurrencySubsystem.h"
 
 FSummonResult USummonSubsystem::RollAndStore()
 {
@@ -14,7 +15,7 @@ FSummonResult USummonSubsystem::RollAndStore()
 	}
 
 	Result.Tier = Gacha->RollRarity();
-	Result.Unit = Gacha->RollUnit(Result.Tier, FName(TEXT("champion_1")));
+	Result.Unit = Gacha->RollUnit(Result.Tier, FName(TEXT("your_champion_unit_id")));
 	Inventory->AddUnit(Result.Unit);
 
 	return Result;
@@ -23,14 +24,14 @@ FSummonResult USummonSubsystem::RollAndStore()
 int32 USummonSubsystem::GetAffordableSummonCount() const
 {
 	UGameInstance* GI = GetGameInstance();
-	UInventorySubsystem* Inventory = GI ? GI->GetSubsystem<UInventorySubsystem>() : nullptr;
+	UCurrencySubsystem* Currency = GI ? GI->GetSubsystem<UCurrencySubsystem>() : nullptr;
 
-	if (!Inventory || CostPerSummon <= 0)
+	if (!Currency || CostPerSummon <= 0)
 	{
 		return 0;
 	}
 
-	const int32 Affordable = Inventory->Gems / CostPerSummon;
+	const int32 Affordable = Currency->Gems / CostPerSummon;
 	return FMath::Min(Affordable, 50);
 }
 
@@ -39,9 +40,9 @@ TArray<FSummonResult> USummonSubsystem::SummonOnce()
 	TArray<FSummonResult> Results;
 
 	UGameInstance* GI = GetGameInstance();
-	UInventorySubsystem* Inventory = GI ? GI->GetSubsystem<UInventorySubsystem>() : nullptr;
+	UCurrencySubsystem* Currency = GI ? GI->GetSubsystem<UCurrencySubsystem>() : nullptr;
 
-	if (!Inventory || !Inventory->TrySpendGems(CostPerSummon))
+	if (!Currency || !Currency->TrySpendGems(CostPerSummon))
 	{
 		return Results;
 	}
@@ -55,9 +56,9 @@ TArray<FSummonResult> USummonSubsystem::SummonTen()
 	TArray<FSummonResult> Results;
 
 	UGameInstance* GI = GetGameInstance();
-	UInventorySubsystem* Inventory = GI ? GI->GetSubsystem<UInventorySubsystem>() : nullptr;
+	UCurrencySubsystem* Currency = GI ? GI->GetSubsystem<UCurrencySubsystem>() : nullptr;
 
-	if (!Inventory || !Inventory->TrySpendGems(CostPerSummon * 10))
+	if (!Currency || !Currency->TrySpendGems(CostPerSummon * 10))
 	{
 		return Results;
 	}
@@ -80,14 +81,14 @@ TArray<FSummonResult> USummonSubsystem::SummonUpToFifty()
 	TArray<FSummonResult> Results;
 
 	UGameInstance* GI = GetGameInstance();
-	UInventorySubsystem* Inventory = GI ? GI->GetSubsystem<UInventorySubsystem>() : nullptr;
+	UCurrencySubsystem* Currency = GI ? GI->GetSubsystem<UCurrencySubsystem>() : nullptr;
 
-	if (!Inventory)
+	if (!Currency)
 	{
 		return Results;
 	}
 
-	while (Results.Num() < 50 && Inventory->TrySpendGems(CostPerSummon))
+	while (Results.Num() < 50 && Currency->TrySpendGems(CostPerSummon))
 	{
 		Results.Add(RollAndStore());
 	}

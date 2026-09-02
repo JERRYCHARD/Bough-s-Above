@@ -1,5 +1,7 @@
 #include "InventorySubsystem.h"
+#include "CurrencySubsystem.h"
 #include "../Characters/StatCalculator.h"
+#include "../Gear/GearSubsystem.h"
 
 const FOwnedUnit* UInventorySubsystem::FindOwnedUnit(FName UnitID) const
 {
@@ -25,44 +27,13 @@ void UInventorySubsystem::AddUnit(const FUnitData& Unit)
 		return;
 	}
 
-	if (!RarityTable)
+	if (UGameInstance* GI = GetGameInstance())
 	{
-		return;
+		if (UCurrencySubsystem* Currency = GI->GetSubsystem<UCurrencySubsystem>())
+		{
+			Currency->AddShardsForDuplicate(Unit.Tier);
+		}
 	}
-
-	const FRarityConfig* Config = RarityTable->FindConfig(Unit.Tier);
-	if (!Config)
-	{
-		return;
-	}
-
-	int32& CurrentShards = ShardsByTier.FindOrAdd(Unit.Tier);
-
-	if (CurrentShards < Config->ShardCap)
-	{
-		CurrentShards += 1;
-		Gold += Config->DuplicateGoldReward;
-	}
-	else
-	{
-		Gold += Config->CappedShardGoldReward;
-	}
-}
-
-bool UInventorySubsystem::TrySpendGems(int32 Amount)
-{
-	if (Gems < Amount)
-	{
-		return false;
-	}
-
-	Gems -= Amount;
-	return true;
-}
-
-void UInventorySubsystem::AddGems(int32 Amount)
-{
-	Gems += Amount;
 }
 
 FUnitStats UInventorySubsystem::GetCalculatedStats(FName UnitID) const
@@ -77,50 +48,21 @@ FUnitStats UInventorySubsystem::GetCalculatedStats(FName UnitID) const
 	{
 		if (Unit.UnitID == UnitID)
 		{
-			return UStatCalculator::CalculateStats(Unit.BaseStats, Owned->StarLevel, GrowthConfig);
+			TArray<FStatModifier> GearModifiers;
+
+			if (UGameInstance* GI = GetGameInstance())
+			{
+				if (UGearSubsystem* Gear = GI->GetSubsystem<UGearSubsystem>())
+				{
+					GearModifiers = Gear->GetEquippedModifiers(UnitID);
+				}
+			}
+
+			return UStatCalculator::CalculateStats(Unit.BaseStats, Owned->StarLevel, GrowthConfig, GearModifiers);
 		}
 	}
 
 	return FUnitStats();
-}
-
-bool UInventorySubsystem::TryStarUpUnit(FName UnitID)
-{
-	FOwnedUnit* Owned = OwnedUnits.FindByPredicate([UnitID](const FOwnedUnit& Unit)
-		{
-			return Unit.UnitID == UnitID;
-		});
-
-	if (!Owned || Owned->StarLevel >= 6 || !RarityTable || !UnitDatabase)
-	{
-		return false;
-	}
-
-	const FUnitData* UnitDef = UnitDatabase->Units.FindByPredicate([UnitID](const FUnitData& Unit)
-		{
-			return Unit.UnitID == UnitID;
-		});
-
-	if (!UnitDef)
-	{
-		return false;
-	}
-
-	const FRarityConfig* Config = RarityTable->FindConfig(UnitDef->Tier);
-	if (!Config)
-	{
-		return false;
-	}
-
-	int32* CurrentShards = ShardsByTier.Find(UnitDef->Tier);
-	if (!CurrentShards || *CurrentShards < Config->ShardsToTierUp)
-	{
-		return false;
-	}
-
-	*CurrentShards -= Config->ShardsToTierUp;
-	Owned->StarLevel += 1;
-	return true;
 }
 
 TArray<FInventoryDisplayEntry> UInventorySubsystem::GetOwnedUnitsByTier(ERarityTier Tier) const
@@ -151,4 +93,44 @@ TArray<FInventoryDisplayEntry> UInventorySubsystem::GetOwnedUnitsByTier(ERarityT
 	}
 
 	return Result;
+}
+
+bool UInventorySubsystem::TryStarUpUnit(FName UnitID)
+{
+	FOwnedUnit* Owned = OwnedUnits.FindByPredicate([UnitID](const FOwnedUnit& Unit)
+		{
+			return Unit.UnitID == UnitID;
+		});
+
+	if (!Owned || Owned->StarLevel >= 6 || !RarityTable || !UnitDatabase)
+	{
+		return false;
+	}
+
+	const FUnitData* UnitDef = UnitDatabase->Units.FindByPredicate([UnitID](const FUnitData& Unit)
+		{
+			return Unit.UnitID == UnitID;
+		});
+
+	if (!UnitDef)
+	{
+		return false;
+	}
+
+	const FRarityConfig* Config = RarityTable->FindConfig(UnitDef->Tier);
+	if (!Config)
+	{
+		return false;
+	}
+
+	UGameInstance* GI = GetGameInstance();
+	UCurrencySubsystem* Currency = GI ? GI->GetSubsystem<UCurrencySubsystem>() : nullptr;
+
+	if (!Currency || !Currency->TrySpendShards(UnitDef->Tier, Config->ShardsToTierUp))
+	{
+		return false;
+	}
+
+	Owned->StarLevel += 1;
+	return true;
 }

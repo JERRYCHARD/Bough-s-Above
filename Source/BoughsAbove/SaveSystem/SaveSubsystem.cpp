@@ -1,12 +1,14 @@
 #include "SaveSubsystem.h"
 #include "Kismet/GameplayStatics.h"
+#include "../Inventory/CurrencySubsystem.h"
 
 void USaveSubsystem::SaveGame()
 {
 	UInventorySubsystem* Inventory = GetGameInstance()->GetSubsystem<UInventorySubsystem>();
 	UGachaSubsystem* Gacha = GetGameInstance()->GetSubsystem<UGachaSubsystem>();
+	UCurrencySubsystem* Currency = GetGameInstance()->GetSubsystem<UCurrencySubsystem>();
 
-	if (!Inventory || !Gacha)
+	if (!Inventory || !Gacha || !Currency)
 	{
 		return;
 	}
@@ -18,9 +20,9 @@ void USaveSubsystem::SaveGame()
 	}
 
 	SaveData->OwnedUnits = Inventory->OwnedUnits;
-	SaveData->ShardsByTier = Inventory->ShardsByTier;
-	SaveData->Gold = Inventory->Gold;
-	SaveData->Gems = Inventory->Gems;
+	SaveData->ShardsByTier = Currency->ShardsByTier;
+	SaveData->Gold = Currency->Gold;
+	SaveData->Gems = Currency->Gems;
 	SaveData->PityCounters = Gacha->GetAllPityCounters();
 
 	UGameplayStatics::SaveGameToSlot(SaveData, SaveSlotName, 0);
@@ -41,15 +43,16 @@ void USaveSubsystem::LoadGame()
 
 	UInventorySubsystem* Inventory = GetGameInstance()->GetSubsystem<UInventorySubsystem>();
 	UGachaSubsystem* Gacha = GetGameInstance()->GetSubsystem<UGachaSubsystem>();
+	UCurrencySubsystem* Currency = GetGameInstance()->GetSubsystem<UCurrencySubsystem>();
 
-	if (!Inventory || !Gacha)
+	if (!Inventory || !Gacha || !Currency)
 	{
 		return;
 	}
 
 	Inventory->OwnedUnits = SaveData->OwnedUnits;
-	Inventory->ShardsByTier = SaveData->ShardsByTier;
-	Inventory->Gold = SaveData->Gold;
-	Inventory->Gems = SaveData->Gems;
+	Currency->ShardsByTier = SaveData->ShardsByTier;
+	Currency->Gold = SaveData->Gold;
+	Currency->Gems = SaveData->Gems;
 	Gacha->RestorePityCounters(SaveData->PityCounters);
 }

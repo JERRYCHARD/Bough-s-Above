@@ -30,15 +30,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
 	TArray<FOwnedUnit> OwnedUnits;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
-	TMap<ERarityTier, int32> ShardsByTier;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
-	int32 Gold = 0;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
-	int32 Gems = 0;
-
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void AddUnit(const FUnitData& Unit);
 
@@ -46,19 +37,13 @@ public:
 	bool OwnsUnit(FName UnitID) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
-	bool TrySpendGems(int32 Amount);
-
-	UFUNCTION(BlueprintCallable, Category = "Inventory")
-	void AddGems(int32 Amount);
-
-	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	FUnitStats GetCalculatedStats(FName UnitID) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
-	bool TryStarUpUnit(FName UnitID);
+	TArray<FInventoryDisplayEntry> GetOwnedUnitsByTier(ERarityTier Tier) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
-	TArray<FInventoryDisplayEntry> GetOwnedUnitsByTier(ERarityTier Tier) const;
+	bool TryStarUpUnit(FName UnitID);
 
 private:
 	const FOwnedUnit* FindOwnedUnit(FName UnitID) const;
