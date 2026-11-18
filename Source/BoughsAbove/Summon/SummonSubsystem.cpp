@@ -15,7 +15,7 @@ FSummonResult USummonSubsystem::RollAndStore()
 	}
 
 	Result.Tier = Gacha->RollRarity();
-	Result.Unit = Gacha->RollUnit(Result.Tier, FName(TEXT("your_champion_unit_id")));
+	Result.Unit = Gacha->RollUnit(Result.Tier, FName(TEXT("champion_1")));
 	Inventory->AddUnit(Result.Unit);
 
 	return Result;

@@ -17,4 +17,13 @@ struct FOwnedUnit
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Unit")
 	FEquippedGear EquippedGear;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Unit")
+	FName TraitSlot1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Unit")
+	FName TraitSlot2;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Unit")
+	int32 ActiveTraitSlot = 1;
 };

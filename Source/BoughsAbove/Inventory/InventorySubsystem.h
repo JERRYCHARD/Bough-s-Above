@@ -45,6 +45,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	bool TryStarUpUnit(FName UnitID);
 
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	FInventoryDisplayEntry GetUnitDisplayInfo(FName UnitID) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	FOwnedUnit GetOwnedUnit(FName UnitID) const;
+
 private:
 	const FOwnedUnit* FindOwnedUnit(FName UnitID) const;
 };

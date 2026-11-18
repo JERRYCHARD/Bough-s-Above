@@ -173,3 +173,29 @@ TArray<FStatModifier> UGearSubsystem::GetEquippedModifiers(FName UnitID) const
 
 	return Modifiers;
 }
+
+TArray<FOwnedGear> UGearSubsystem::GetUnequippedGearBySlot(EGearSlot Slot) const
+{
+	TArray<FOwnedGear> Result;
+
+	if (!GearDatabase)
+	{
+		return Result;
+	}
+
+	for (const FOwnedGear& Owned : OwnedGear)
+	{
+		if (!Owned.EquippedToUnitID.IsNone())
+		{
+			continue;
+		}
+
+		const FGearItem* Item = GearDatabase->FindGear(Owned.GearID);
+		if (Item && Item->SlotType == Slot)
+		{
+			Result.Add(Owned);
+		}
+	}
+
+	return Result;
+}

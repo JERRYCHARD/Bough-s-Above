@@ -38,4 +38,13 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Currency")
 	int32 GetShardCount(ERarityTier Tier) const;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Currency")
+	int32 TraitCoupons = 0;
+
+	UFUNCTION(BlueprintCallable, Category = "Currency")
+	bool TrySpendTraitCoupons(int32 Amount);
+
+	UFUNCTION(BlueprintCallable, Category = "Currency")
+	void AddTraitCoupons(int32 Amount);
 };

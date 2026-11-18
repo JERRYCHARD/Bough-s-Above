@@ -59,3 +59,19 @@ int32 UCurrencySubsystem::GetShardCount(ERarityTier Tier) const
 	const int32* CurrentShards = ShardsByTier.Find(Tier);
 	return CurrentShards ? *CurrentShards : 0;
 }
+
+bool UCurrencySubsystem::TrySpendTraitCoupons(int32 Amount)
+{
+	if (TraitCoupons < Amount)
+	{
+		return false;
+	}
+
+	TraitCoupons -= Amount;
+	return true;
+}
+
+void UCurrencySubsystem::AddTraitCoupons(int32 Amount)
+{
+	TraitCoupons += Amount;
+}

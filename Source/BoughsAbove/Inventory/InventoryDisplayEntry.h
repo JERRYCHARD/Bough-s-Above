@@ -20,4 +20,7 @@ struct FInventoryDisplayEntry
 
 	UPROPERTY(BlueprintReadWrite, Category = "Inventory")
 	ERarityTier Tier = ERarityTier::Novice;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Inventory")
+	TArray<FName> Attributes;
 };

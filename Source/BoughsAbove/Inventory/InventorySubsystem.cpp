@@ -2,6 +2,7 @@
 #include "CurrencySubsystem.h"
 #include "../Characters/StatCalculator.h"
 #include "../Gear/GearSubsystem.h"
+#include "../Traits/TraitSubsystem.h"
 
 const FOwnedUnit* UInventorySubsystem::FindOwnedUnit(FName UnitID) const
 {
@@ -48,17 +49,30 @@ FUnitStats UInventorySubsystem::GetCalculatedStats(FName UnitID) const
 	{
 		if (Unit.UnitID == UnitID)
 		{
-			TArray<FStatModifier> GearModifiers;
+			TArray<FStatModifier> AllModifiers;
 
 			if (UGameInstance* GI = GetGameInstance())
 			{
 				if (UGearSubsystem* Gear = GI->GetSubsystem<UGearSubsystem>())
 				{
-					GearModifiers = Gear->GetEquippedModifiers(UnitID);
+					AllModifiers.Append(Gear->GetEquippedModifiers(UnitID));
+				}
+
+				if (UTraitSubsystem* Traits = GI->GetSubsystem<UTraitSubsystem>())
+				{
+					const FName ActiveTraitID = (Owned->ActiveTraitSlot == 2) ? Owned->TraitSlot2 : Owned->TraitSlot1;
+
+					if (!ActiveTraitID.IsNone() && Traits->TraitDatabase)
+					{
+						if (const FTraitData* ActiveTrait = Traits->TraitDatabase->FindTrait(ActiveTraitID))
+						{
+							AllModifiers.Append(ActiveTrait->StatModifiers);
+						}
+					}
 				}
 			}
 
-			return UStatCalculator::CalculateStats(Unit.BaseStats, Owned->StarLevel, GrowthConfig, GearModifiers);
+			return UStatCalculator::CalculateStats(Unit.BaseStats, Owned->StarLevel, GrowthConfig, AllModifiers);
 		}
 	}
 
@@ -88,6 +102,7 @@ TArray<FInventoryDisplayEntry> UInventorySubsystem::GetOwnedUnitsByTier(ERarityT
 			Entry.DisplayName = UnitDef->DisplayName;
 			Entry.StarLevel = Owned.StarLevel;
 			Entry.Tier = Tier;
+			Entry.Attributes = UnitDef->Attributes;
 			Result.Add(Entry);
 		}
 	}
@@ -133,4 +148,41 @@ bool UInventorySubsystem::TryStarUpUnit(FName UnitID)
 
 	Owned->StarLevel += 1;
 	return true;
+}
+
+FInventoryDisplayEntry UInventorySubsystem::GetUnitDisplayInfo(FName UnitID) const
+{
+	FInventoryDisplayEntry Entry;
+
+	const FOwnedUnit* Owned = FindOwnedUnit(UnitID);
+	if (!Owned || !UnitDatabase)
+	{
+		return Entry;
+	}
+
+	const FUnitData* UnitDef = UnitDatabase->Units.FindByPredicate([UnitID](const FUnitData& Unit)
+		{
+			return Unit.UnitID == UnitID;
+		});
+
+	if (UnitDef)
+	{
+		Entry.UnitID = UnitID;
+		Entry.DisplayName = UnitDef->DisplayName;
+		Entry.StarLevel = Owned->StarLevel;
+		Entry.Tier = UnitDef->Tier;
+		Entry.Attributes = UnitDef->Attributes;
+	}
+
+	return Entry;
+}
+
+FOwnedUnit UInventorySubsystem::GetOwnedUnit(FName UnitID) const
+{
+	if (const FOwnedUnit* Found = FindOwnedUnit(UnitID))
+	{
+		return *Found;
+	}
+
+	return FOwnedUnit();
 }

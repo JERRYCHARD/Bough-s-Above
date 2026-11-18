@@ -31,4 +31,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Gear")
 	TArray<FStatModifier> GetEquippedModifiers(FName UnitID) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Gear")
+	TArray<FOwnedGear> GetUnequippedGearBySlot(EGearSlot Slot) const;
 };

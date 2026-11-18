@@ -8,10 +8,10 @@
 USTRUCT(BlueprintType)
 struct FUnitData
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Unit")
-    FName UnitID;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Unit")
+	FName UnitID;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Unit")
 	FText DisplayName;
@@ -21,4 +21,7 @@ struct FUnitData
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Unit")
 	FUnitStats BaseStats;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Unit")
+	TArray<FName> Attributes;
 };

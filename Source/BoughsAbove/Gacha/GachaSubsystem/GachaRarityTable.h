@@ -15,4 +15,7 @@ public:
 	TArray<FRarityConfig> Rarities;
 
 	const FRarityConfig* FindConfig(ERarityTier Tier) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Rarity")
+	int32 GetShardsToTierUp(ERarityTier Tier) const;
 };
